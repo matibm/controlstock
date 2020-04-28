@@ -59,6 +59,7 @@ var cierreCajaRoutes = require('./routes/cierreCaja');
 var imagenesRoutes = require('./routes/imagenes');
 var busquedaRoutes = require('./routes/busqueda');
 // Rutas
+
 app.use('/usuario', usuarioRoutes);
 app.use('/login', loginRoutes);
 app.use('/hospital', hospitalRoutes);

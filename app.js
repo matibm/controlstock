@@ -72,7 +72,7 @@ app.use('/producto', productoRoutes);
 app.use('/cierrecaja', cierreCajaRoutes);
 app.use('/', appRoutes);
 
-mongoose.connection.openUri('mongodb://localhost:27017/Productos', (err, res) => {
+mongoose.connection.openUri('mongodb+srv://matibm:rb433ah01@cluster0-pywni.mongodb.net/Productos', (err, res) => {
         if (err) throw err;
         console.log("Base de datos:  \x1b[32m%s\x1b[0m", ' online');
     })

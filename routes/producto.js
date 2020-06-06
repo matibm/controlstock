@@ -5,20 +5,27 @@ var Producto = require('../models/producto');
 
 
 app.get('/', (req, res, next) => {
-    Producto.find((err, productos) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                messaje: 'Error al cargar productos',
-                errors: err
+
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
+    Producto.find({})
+        .skip(desde)
+        .limit(5)
+        .exec((err, productos) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al cargar productos',
+                    errors: err
+                })
+            }
+            res.status(200).json({
+                ok: true,
+                messaje: 'Peticion realizada correctamente',
+                productos: productos
             })
-        }
-        res.status(200).json({
-            ok: true,
-            messaje: 'Peticion realizada correctamente',
-            productos: productos
         })
-    })
 
 })
 

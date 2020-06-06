@@ -7,19 +7,68 @@ var SEED = require('../config/config').SEED;
 var Cliente = require('../models/cliente');
 var mdAutenticacion = require('../middleware/autenticacion');
 
+app.get('/buscar/:termino', (req, res, next) => {
+
+    var busqueda = req.params.termino;
+    var regex = new RegExp(busqueda, 'i')
+
+    Promise.all([buscarClientes(busqueda, regex)]).then(respuestas => {
+        res.status(200).json({
+            ok: true,
+            clientes: respuestas[0]
+        });
+    });
+})
+
+function buscarClientes(busqueda, regex) {
+    return new Promise((resolve, reject) => {
+        Cliente.find({})
+            .or([{ 'ci': regex }, { 'nombre': regex }, { 'ci': regex }])
+            .exec((err, cliente) => {
+                if (err) {
+                    reject('Error al cargar clientes', err)
+                } else {
+                    resolve(cliente)
+                }
+            })
+    })
+}
+
+
+app.post('/', (req, res) => {
+    console.log(req.body)
+    let cliente = new Cliente(req.body);
+    cliente.save((err, clienteSaved) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al cargar productos',
+                errors: err
+            });
+        };
+
+        res.status(200).json({
+            ok: true,
+            messaje: 'cliente guardado correctamente',
+            cliente: clienteSaved
+        });
+
+    })
+})
+
 app.get('/', (req, res, next) => {
 
     var desde = req.query.desde || 0;
     desde = Number(desde);
 
-    Cliente.find({}, 'nombre email img role')
+    Cliente.find({})
         .skip(desde)
-        .limit(5)
-        .exec((err, usuarios) => {
+        .limit(20)
+        .exec((err, clientes) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
-                    mensaje: 'error cargando usuarios',
+                    mensaje: 'error cargando clientes',
                     errors: err
                 });
             }
@@ -28,58 +77,59 @@ app.get('/', (req, res, next) => {
                 if (err) {
                     return res.status(500).json({
                         ok: false,
-                        mensaje: 'error contando usuarios',
+                        mensaje: 'error contando clientes',
                         errors: err
                     });
                 }
                 res.status(200).json({
                     ok: true,
-                    Usuarios: usuarios,
-                    totalUsuarios: conteo
+                    clientes: clientes,
+                    totalClientes: conteo
                 });
             })
 
         });
 });
 
-app.put('/', mdAutenticacion.verificaToken, (req, res) => {
+app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
 
     var id = req.params.id;
 
-    Cliente.findById(id, (err, usuario) => {
+    Cliente.findById(id, (err, cliente) => {
         var body = req.body
 
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'error al buscar usuario',
+                mensaje: 'error al buscar cliente',
                 errors: err
             });
         }
-        if (!usuario) {
+        if (!cliente) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'El usuario con el' + id + 'no existe',
-                errors: { message: 'No existe un usuario con ese ID' }
+                mensaje: 'El cliente con el' + id + 'no existe',
+                errors: { message: 'No existe un cliente con ese ID' }
             });
         }
 
-        usuario.nombre = body.nombre;
-        usuario.email = body.email;
-        usuario.role = body.role;
+        cliente.ci = body.ci;
+        cliente.ruc = body.ruc;
+        cliente.nombre = body.nombre;
+        cliente.facturas = body.facturas;
 
-        usuario.save((err, usuarioGuardado) => {
+        cliente.save((err, clienteGuardado) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
-                    mensaje: 'Error al actualizar usuario',
+                    mensaje: 'Error al actualizar cliente',
                     errors: err
                 });
             }
-            usuarioGuardado.password = ':)'
+
             res.status(200).json({
                 ok: true,
-                Usuarios: usuarioGuardado
+                clientes: clienteGuardado
             });
 
         })
@@ -88,55 +138,26 @@ app.put('/', mdAutenticacion.verificaToken, (req, res) => {
 
 })
 
-app.post('/', mdAutenticacion.verificaToken, (req, res) => {
-    var body = req.body
 
-    var usuario = new Cliente({
-        nombre: body.nombre,
-        email: body.email,
-        password: bcrypt.hashSync(body.password, 10),
-        img: body.img,
-        role: body.role
-
-    });
-
-    usuario.save((err, usuarioGuardado) => {
-        if (err) {
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'error cargando usuarios',
-                errors: err
-            });
-        }
-
-        res.status(200).json({
-            ok: true,
-            Usuarios: usuarioGuardado,
-            usuarioToken: req.usuario
-        })
-
-    });
-});
-
-app.delete('/:id', mdAutenticacion.verificaToken, (req, res) => {
+app.delete('/:id', (req, res) => {
     var id = req.params.id;
-    Cliente.findByIdAndRemove(id, (err, usuarioBorrado) => {
+    Cliente.findByIdAndRemove(id, (err, clienteBorrado) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error borrar usuario',
+                mensaje: 'Error borrar cliente',
                 errors: err
             });
         }
         res.status(200).json({
             ok: true,
-            usuario: usuarioBorrado
+            cliente: clienteBorrado
         })
-        if (!usuarioBorrado) {
+        if (!clienteBorrado) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'No existe un usuario con ese id',
-                errors: "no existe el usuario para borrar"
+                mensaje: 'No existe un cliente con ese id',
+                errors: "no existe el cliente para borrar"
             });
         }
 

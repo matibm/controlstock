@@ -49,6 +49,7 @@ app.use(cors(), function(req, res, next) {
 var appRoutes = require('./routes/app');
 var productoRoutes = require('./routes/producto');
 var facturaRoutes = require('./routes/factura');
+var clienteRoutes = require('./routes/cliente');
 var usuarioRoutes = require('./routes/usuario')
 var loginRoutes = require('./routes/login');
 var hospitalRoutes = require('./routes/hospital');
@@ -62,6 +63,7 @@ var busquedaRoutes = require('./routes/busqueda');
 
 app.use('/usuario', usuarioRoutes);
 app.use('/login', loginRoutes);
+app.use('/cliente', clienteRoutes);
 app.use('/hospital', hospitalRoutes);
 app.use('/medico', medicoRoutes);
 app.use('/upload', uploadRoutes);

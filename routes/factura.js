@@ -40,6 +40,20 @@ app.get('/:id', (req, res) => {
     });
 })
 
+// get factura por cliente 
+app.get('/cliente/:id', (req, res) => {
+    let id = req.params.id;
+    Factura.find({ cliente: id }).exec((err, facturas) => {
+        if (err) {
+            return
+        }
+        res.status(200).json({
+            ok: true,
+            facturas: facturas
+        })
+    })
+})
+
 app.post('/', (req, res) => {
 
     let factura = new Factura(req.body);
@@ -52,11 +66,14 @@ app.post('/', (req, res) => {
                 errors: err
             });
         };
+        console.log(facturaSaved);
+
         res.status(200).json({
             ok: true,
             messaje: 'factura guardado correctamente',
             factura: facturaSaved
         });
+
     })
 })
 
@@ -79,6 +96,7 @@ app.put('/:id', (req, res) => {
         factura.precioBruto = facturaNuevo.precioBruto
         factura.modelo = facturaNuevo.modelo
         factura.cantidad = facturaNuevo.cantidad
+        factura.debiendo = facturaNuevo.debiendo
 
         factura.save((err, facturaGuardado) => {
             if (err) {

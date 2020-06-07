@@ -3,6 +3,7 @@ var express = require('express');
 var mongoose = require('mongoose');
 mongoose.set('useCreateIndex', true);
 var bodyParser = require('body-parser');
+const path = require('path');
 
 // Inicializar variables 
 var app = express();
@@ -73,7 +74,11 @@ app.use('/busqueda', busquedaRoutes);
 app.use('/factura', facturaRoutes);
 app.use('/producto', productoRoutes);
 app.use('/cierrecaja', cierreCajaRoutes);
-app.use('/', appRoutes);
+// app.use('/', appRoutes);
+app.use(express.static(`../inventario-frontend/dist/control-stock`));
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname + `/../inventario-frontend/dist/control-stock/index.html`));
+});
 
 mongoose.connection.openUri('mongodb://localhost:27017/Productos', (err, res) => {
         if (err) throw err;

@@ -28,6 +28,35 @@ app.get('/', (req, res, next) => {
         })
 
 })
+app.get('/faltantes', (req, res, next) => {
+
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
+    Producto.find({})
+        .skip(desde)
+        .exec((err, productos) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al cargar productos',
+                    errors: err
+                })
+            }
+            let faltantes = new Array();
+            for (let i = 0; i < productos.length; i++) {
+                const producto = productos[i];
+                if (producto.stock == 0) {
+                    faltantes.push(producto)
+                }
+            }
+            res.status(200).json({
+                ok: true,
+                messaje: 'Peticion realizada correctamente',
+                productos: faltantes
+            })
+        })
+})
 
 app.get('/:id', (req, res) => {
     let id = req.params.id;

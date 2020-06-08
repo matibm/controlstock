@@ -2,6 +2,7 @@ var express = require('express');
 
 var app = express()
 var Factura = require('../models/factura');
+var Producto = require('../models/producto');
 
 
 app.get('/', (req, res, next) => {
@@ -19,9 +20,82 @@ app.get('/', (req, res, next) => {
             facturas: facturas
         })
     })
+})
+app.get('/masvendidos', (req, res, next) => {
 
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
+    var hasta = req.query.hasta || new Date().valueOf();
+    hasta = Number(hasta);
+    Factura.find((err, facturas) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al cargar facturas',
+                errors: err
+            })
+        }
+
+        let facturasAux = new Array
+
+        for (let i = 0; i < facturas.length; i++) {
+            const factura = facturas[i];
+            if (factura.fecha >= desde && factura.fecha <= hasta) {
+                facturasAux.push(factura);
+            }
+        }
+
+        facturas = facturasAux;
+
+        Producto.find({}).exec((err, productos) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al cargar productos',
+                    errors: err
+                })
+            }
+
+            for (let i = 0; i < facturas.length; i++) {
+                const factura = facturas[i];
+                for (let j = 0; j < factura.productos.length; j++) {
+                    const producto = factura.productos[j];
+
+                    for (let k = 0; k < productos.length; k++) {
+                        const element = productos[k];
+                        if (element.codigo == producto.codigo) {
+                            productos[k].cantidad += producto.cantidad;
+                        }
+                    }
+                }
+            }
+            productos.sort(compare);
+            productos = productos.reverse()
+            res.status(200).json({
+                ok: true,
+                messaje: 'Peticion realizada correctamente',
+                facturas: productos
+            })
+        })
+
+
+    })
 })
 
+function compare(a, b) {
+    // Use toUpperCase() to ignore character casing
+    const bandA = a.cantidad
+    const bandB = b.cantidad
+
+    let comparison = 0;
+    if (bandA > bandB) {
+        comparison = 1;
+    } else if (bandA < bandB) {
+        comparison = -1;
+    }
+    return comparison;
+}
 app.get('/:id', (req, res) => {
     let id = req.params.id;
     Factura.findById(id).exec((err, factura) => {

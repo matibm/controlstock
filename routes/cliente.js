@@ -8,16 +8,32 @@ var Cliente = require('../models/cliente');
 var mdAutenticacion = require('../middleware/autenticacion');
 
 app.get('/buscar/:termino', (req, res, next) => {
-
     var busqueda = req.params.termino;
     var regex = new RegExp(busqueda, 'i')
-
     Promise.all([buscarClientes(busqueda, regex)]).then(respuestas => {
         res.status(200).json({
             ok: true,
             clientes: respuestas[0]
         });
     });
+})
+app.get('/:id', (req, res, next) => {
+    var id = req.params.id;
+    Cliente.findById(id, (err, cliente) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                message: 'error al buscar cliente'
+            })
+        }
+        if (cliente) {
+            res.status(200).json({
+                ok: true,
+                cliente: cliente
+            })
+        }
+    })
+
 })
 
 function buscarClientes(busqueda, regex) {
@@ -50,7 +66,7 @@ app.post('/', (req, res) => {
         res.status(200).json({
             ok: true,
             messaje: 'cliente guardado correctamente',
-            cliente: clienteSaved
+            cliente: cliente
         });
 
     })

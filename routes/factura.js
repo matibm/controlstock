@@ -56,12 +56,10 @@ app.get('/masvendidos', (req, res, next) => {
                     errors: err
                 })
             }
-
             for (let i = 0; i < facturas.length; i++) {
                 const factura = facturas[i];
                 for (let j = 0; j < factura.productos.length; j++) {
                     const producto = factura.productos[j];
-
                     for (let k = 0; k < productos.length; k++) {
                         const element = productos[k];
                         if (element.codigo == producto.codigo) {
@@ -80,6 +78,103 @@ app.get('/masvendidos', (req, res, next) => {
         })
 
 
+    })
+})
+
+app.get('/debiendo', (req, res) => {
+    Factura.find((err, facturas) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al cargar facturas',
+                errors: err
+            })
+        }
+
+        let facturasAux = new Array
+
+        for (let i = 0; i < facturas.length; i++) {
+            const factura = facturas[i];
+            if (factura.debiendo) {
+                facturasAux.push(factura)
+            }
+        }
+        res.status(200).json({
+            ok: true,
+            facturas: facturasAux
+        })
+    })
+})
+
+app.get('/productosVendidos/:desde', (req, res) => {
+    var desde = req.params.desde || 0;
+    var hasta = req.query.hasta || new Date().valueOf();
+
+    console.log("desde", desde);
+    console.log("hasta", hasta);
+
+    desde = Number(desde);
+
+    hasta = Number(hasta);
+    Factura.find((err, facturas) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al cargar facturas',
+                errors: err
+            })
+        }
+
+        let facturasAux = new Array
+
+        for (let i = 0; i < facturas.length; i++) {
+            const factura = facturas[i];
+            if (factura.fecha >= desde && factura.fecha <= hasta) {
+                facturasAux.push(factura);
+            }
+        }
+
+        facturas = facturasAux;
+
+        Producto.find({}).exec((err, productos) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al cargar productos',
+                    errors: err
+                })
+            }
+            for (let i = 0; i < facturas.length; i++) {
+                const factura = facturas[i];
+                for (let j = 0; j < factura.productos.length; j++) {
+                    const producto = factura.productos[j];
+                    for (let k = 0; k < productos.length; k++) {
+                        const element = productos[k];
+                        if (element.codigo == producto.codigo) {
+                            productos[k].cantidad += producto.cantidad;
+                        }
+                    }
+                }
+            }
+
+            productos.sort(compare);
+            productos = productos.reverse()
+            let productosAuxiliar = []
+            for (let i = 0; i < productos.length; i++) {
+                const producto = productos[i];
+                if (producto.cantidad > 0) {
+                    productosAuxiliar.push(producto)
+                }
+            }
+            productos = productosAuxiliar;
+            console.log(productos);
+
+            res.status(200).json({
+                ok: true,
+                messaje: 'Peticion realizada correctamente',
+                productos: productos
+            })
+        })
     })
 })
 

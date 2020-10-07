@@ -77,7 +77,6 @@ app.get('/masvendidos', (req, res, next) => {
             })
         })
 
-
     })
 })
 
@@ -109,9 +108,6 @@ app.get('/debiendo', (req, res) => {
 app.get('/productosVendidos/:desde', (req, res) => {
     var desde = req.params.desde || 0;
     var hasta = req.query.hasta || new Date().valueOf();
-
-    console.log("desde", desde);
-    console.log("hasta", hasta);
 
     desde = Number(desde);
 
@@ -167,12 +163,13 @@ app.get('/productosVendidos/:desde', (req, res) => {
                 }
             }
             productos = productosAuxiliar;
-            console.log(productos);
 
             res.status(200).json({
                 ok: true,
                 messaje: 'Peticion realizada correctamente',
-                productos: productos
+                productos: productos,
+                desde: new Date(desde),
+                hasta: new Date(hasta)
             })
         })
     })
@@ -235,7 +232,7 @@ app.post('/', (req, res) => {
                 errors: err
             });
         };
-        console.log(facturaSaved);
+        // console.log(facturaSaved);
 
         res.status(200).json({
             ok: true,

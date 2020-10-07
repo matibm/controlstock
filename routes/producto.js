@@ -9,9 +9,30 @@ app.get('/', (req, res, next) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
 
-    Producto.find({})
+    Producto.find({}).sort({ marca: 1 })
         .skip(desde)
         .limit(5)
+        .exec((err, productos) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al cargar productos',
+                    errors: err
+                })
+            }
+            res.status(200).json({
+                ok: true,
+                messaje: 'Peticion realizada correctamente',
+                productos: productos.reverse()
+            })
+        })
+
+})
+app.get('/all', (req, res, next) => {
+
+
+
+    Producto.find({})
         .exec((err, productos) => {
             if (err) {
                 return res.status(500).json({
@@ -79,8 +100,6 @@ app.get('/:id', (req, res) => {
 app.post('/', (req, res) => {
 
     let producto = new Producto(req.body);
-
-
     producto.save((err, productoSaved) => {
         if (err) {
             return res.status(500).json({
@@ -88,57 +107,78 @@ app.post('/', (req, res) => {
                 messaje: 'Error al cargar productos',
                 errors: err
             });
-
-
         };
-
         res.status(200).json({
             ok: true,
             messaje: 'producto guardado correctamente',
             producto: productoSaved
         });
-
     })
 })
-app.put('/decrementar', (req, res) => {
-
+app.put('/decrementar', async(req, res) => {
+    let productosEnNegativo = []
     let arregloObjetos = req.body
     for (let index = 0; index < arregloObjetos.length; index++) {
         const id = arregloObjetos[index].id;
         const cantidad = arregloObjetos[index].cantidad;
-        Producto.findById(id, (err, producto) => {
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    messaje: 'Error al cargar productos',
-                    errors: err
-                });
-            };
-
-            producto.stock -= cantidad
-
-            producto.save((err, productoGuardado) => {
-                if (err) {
-                    return res.status(500).json({
-                        ok: false,
-                        messaje: 'Error al guardar el producto',
-                        errors: err
-                    });
-                };
+        let producto = await buscarProducto(id, cantidad)
+        if (!producto) {
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al cargar productos',
+            });
+        }
+        producto.stock -= cantidad;
+        if (producto.stock >= 0) {
+            await guardarProducto(producto);
+        } else {
+            productosEnNegativo.push(producto);
+        }
 
 
-            })
+    }
+    if (productosEnNegativo.length > 0) {
+        res.status(200).json({
+            ok: false,
+            messaje: 'producto se vendio mas de lo que habia',
+            productos: productosEnNegativo
+        })
+    } else {
+        res.status(200).json({
+            ok: true,
+            messaje: 'productos actualizado correctamente'
         })
     }
-    res.status(200).json({
-        ok: true,
-        messaje: 'productos actualizado correctamente'
-    })
+
+
 
 
 })
 
+async function buscarProducto(id, cantidad) {
+    let p = await Producto.findById(id, (err, producto) => {
+        // if (err) {
+        //     console.log("error", err);
+        //     return err;
+        // };
 
+        // return producto;
+    }).catch(err => {
+        return err
+    }).then(res => {
+        return res
+    })
+    return p
+}
+
+async function guardarProducto(producto) {
+    return await producto.save((err, productoGuardado) => {
+        if (err) {
+            return null;
+        };
+        return productoGuardado;
+    })
+}
 app.put('/:id', (req, res) => {
 
     let productoNuevo = req.body
@@ -146,7 +186,7 @@ app.put('/:id', (req, res) => {
 
     Producto.findById(id, (err, producto) => {
         if (err) {
-            console.log(err);
+            // // console.log("error", err);
 
             return res.status(500).json({
                 ok: false,
@@ -163,7 +203,6 @@ app.put('/:id', (req, res) => {
         producto.modelo = productoNuevo.modelo
         producto.stock = productoNuevo.stock
         producto.img = productoNuevo.img
-        console.log(producto);
 
         producto.save((err, productoGuardado) => {
             if (err) {

@@ -52,7 +52,7 @@ function buscarClientes(busqueda, regex) {
 
 
 app.post('/', (req, res) => {
-    console.log(req.body)
+    // console.log(req.body)
     let cliente = new Cliente(req.body);
     cliente.save((err, clienteSaved) => {
         if (err) {

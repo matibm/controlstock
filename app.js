@@ -61,6 +61,7 @@ var cierreCajaRoutes = require('./routes/cierreCaja');
 var imagenesRoutes = require('./routes/imagenes');
 var busquedaRoutes = require('./routes/busqueda');
 var recargaRoute = require('./routes/recarga');
+var proveedorRoute = require('./routes/proveedor');
 // Rutas
 
 app.use('/usuario', usuarioRoutes);
@@ -76,6 +77,7 @@ app.use('/factura', facturaRoutes);
 app.use('/producto', productoRoutes);
 app.use('/cierrecaja', cierreCajaRoutes);
 app.use('/recarga', recargaRoute);
+app.use('/proveedor', proveedorRoute);
 // app.use('/', appRoutes);
 app.use(express.static(`../inventario-frontend/dist/control-stock`));
 app.get('/*', (req, res) => {

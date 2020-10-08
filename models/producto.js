@@ -12,7 +12,9 @@ var productoSchema = new Schema({
     cantidad: { type: Number, required: true, default: 0 },
     descuento: { type: Number, required: false },
     desc: { type: Boolean, required: false, default: false },
-    stock: { type: Number, required: true, default: 0 }
+    stock: { type: Number, required: true, default: 0 },
+    proveedor: { type: String, required: false }
+
 
 }, { collection: 'productos' });
 

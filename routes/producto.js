@@ -49,6 +49,41 @@ app.get('/all', (req, res, next) => {
         })
 
 })
+app.get('/proveedor/:idproveedor', (req, res, next) => {
+    let proveedorid = req.params.idproveedor;
+
+
+    Producto.find({})
+        .exec((err, productos) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al cargar productos',
+                    errors: err
+                })
+            }
+
+            let aux = []
+
+            productos.forEach(producto => {
+                if (producto.proveedor) {
+                    if (producto.proveedor == proveedorid) {
+                        aux.push(producto);
+                    }
+                }
+            })
+
+            res.status(200).json({
+                ok: true,
+                messaje: 'Peticion realizada correctamente',
+                productos: aux
+            })
+        })
+
+})
+
+
+
 app.get('/faltantes', (req, res, next) => {
 
     var desde = req.query.desde || 0;
@@ -203,6 +238,7 @@ app.put('/:id', (req, res) => {
         producto.modelo = productoNuevo.modelo
         producto.stock = productoNuevo.stock
         producto.img = productoNuevo.img
+        producto.proveedor = productoNuevo.proveedor
 
         producto.save((err, productoGuardado) => {
             if (err) {

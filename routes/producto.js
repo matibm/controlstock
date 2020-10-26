@@ -239,6 +239,7 @@ app.put('/:id', (req, res) => {
         producto.stock = productoNuevo.stock
         producto.img = productoNuevo.img
         producto.proveedor = productoNuevo.proveedor
+        producto.stockMinimo = productoNuevo.stockMinimo
 
         producto.save((err, productoGuardado) => {
             if (err) {

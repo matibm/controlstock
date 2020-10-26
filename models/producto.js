@@ -13,7 +13,8 @@ var productoSchema = new Schema({
     descuento: { type: Number, required: false },
     desc: { type: Boolean, required: false, default: false },
     stock: { type: Number, required: true, default: 0 },
-    proveedor: { type: String, required: false }
+    proveedor: { type: String, required: false },
+    stockMinimo: { type: Number, required: false },
 
 
 }, { collection: 'productos' });

@@ -5,10 +5,13 @@ var Factura = require('../models/factura');
 var Producto = require('../models/producto');
 
 
-app.get('/', (req, res, next) => {
-    Factura.find((err, facturas) => {
+app.get('/:desde', (req, res, next) => {
+    var desde = req.params.desde || 0;
+    var hasta = req.query.hasta || new Date().valueOf();
+
+    Factura.find({ fecha: { $gt: desde, $lt: hasta } }).exec((err, facturas) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
                 messaje: 'Error al cargar facturas',
                 errors: err
@@ -285,21 +288,54 @@ app.put('/:id', (req, res) => {
 
 app.delete('/:id', (req, res) => {
     let id = req.params.id;
-    Factura.findByIdAndRemove(id).exec((err, factura) => {
+
+    Factura.findById(id).exec(async(err, factura) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
-                messaje: 'Error al cargar facturas',
+                messaje: 'Error al buscar factura',
                 errors: err
             });
         };
-        res.status(200).json({
-            ok: true,
-            messaje: 'Eliminacion realizada correctamente'
+        for (let i = 0; i < factura.productos.length; i++) {
+            const productoFactura = factura.productos[i];
+            let producto = await Producto.findById(productoFactura._id)
+            producto.stock += productoFactura.cantidad
+            await producto.save()
+        }
+
+        Factura.findByIdAndRemove(id).exec((err, factura) => {
+            if (err) {
+                res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al cargar facturas',
+                    errors: err
+                });
+            };
+            res.status(200).json({
+                ok: true,
+                messaje: 'Eliminacion realizada correctamente'
+            });
         });
-    });
+
+    })
+
+
+
+
+
+
+
 })
 
 
+async function buscarProducto(id) {
+    let p = await Producto.findById(id).catch(err => {
+        return err
+    }).then(res => {
+        return res
+    })
+    return p
+}
 
 module.exports = app

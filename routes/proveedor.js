@@ -66,6 +66,36 @@ app.post('/', (req, res) => {
 
     })
 })
+app.put('/:id', (req, res) => {
+    let proveedorNuevo = req.body
+    let id = req.params.id;
+    Proveedor.findById(id).exec((err, proveedor) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al buscar proveedor',
+                errors: err
+            });
+        };
+        proveedor.nombre = proveedorNuevo.nombre
+        proveedor.telefono = proveedorNuevo.telefono
+        proveedor.comentario = proveedorNuevo.comentario
+        proveedor.save((err, data) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    messaje: 'Error al guardar proveedor',
+                    errors: err
+                });
+            };
+            res.status(200).json({
+                ok: true,
+                messaje: 'proveedor actualizado correctamente',
+                proveedor: data
+            })
+        })
+    })
+})
 
 
 app.delete('/:id', (req, res) => {
@@ -84,9 +114,6 @@ app.delete('/:id', (req, res) => {
         });
     });
 })
-
-
-
 app.get('/buscar/:busqueda', (req, res, next) => {
 
     var busqueda = req.params.busqueda;

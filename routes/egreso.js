@@ -4,10 +4,12 @@ var app = express()
 
 var Egreso = require('../models/egreso');
 
-app.get('/', (req, res, next) => {
-    Egreso.find((err, egresos) => {
+app.get('/:desde/', (req, res, next) => {
+    var desde = req.params.desde || 0;
+    var hasta = req.query.hasta || new Date().valueOf();
+    Egreso.find({ fecha: { $gt: desde, $lt: hasta } }).exec((err, egresos) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
                 messaje: 'Error al cargar egresos',
                 errors: err

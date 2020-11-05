@@ -11,7 +11,7 @@ app.get('/', (req, res, next) => {
 
     Producto.find({}).sort({ marca: 1 })
         .skip(desde)
-        .limit(5)
+        .limit(6)
         .exec((err, productos) => {
             if (err) {
                 return res.status(500).json({
@@ -26,7 +26,6 @@ app.get('/', (req, res, next) => {
                 productos: productos.reverse()
             })
         })
-
 })
 app.get('/all', (req, res, next) => {
 
@@ -53,7 +52,7 @@ app.get('/proveedor/:idproveedor', (req, res, next) => {
     let proveedorid = req.params.idproveedor;
 
 
-    Producto.find({})
+    Producto.find({}).sort({ marca: 1 })
         .exec((err, productos) => {
             if (err) {
                 return res.status(500).json({
@@ -214,6 +213,46 @@ async function guardarProducto(producto) {
         return productoGuardado;
     })
 }
+
+app.put('/multiple', (req, res) => {
+
+    let arr = req.body
+    let producto
+    console.log(arr);
+    arr.forEach(async(productoNuevo) => {
+        try {
+
+            producto = await Producto.findById(productoNuevo._id)
+            producto.marca = productoNuevo.marca
+            producto.codigo = productoNuevo.codigo
+            producto.precio = productoNuevo.precio
+            producto.descuento = productoNuevo.descuento
+            producto.precioBruto = productoNuevo.precioBruto
+            producto.modelo = productoNuevo.modelo
+            producto.stock += Math.abs(productoNuevo.cantidad)
+            producto.img = productoNuevo.img
+            producto.proveedor = productoNuevo.proveedor
+            producto.stockMinimo = productoNuevo.stockMinimo
+
+            await producto.save()
+
+        } catch {
+
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al cargar productos',
+                errors: err
+            });
+        }
+    })
+
+    res.status(200).json({
+        ok: true,
+        messaje: 'productos actualizados '
+    })
+
+})
+
 app.put('/:id', (req, res) => {
 
     let productoNuevo = req.body
@@ -259,6 +298,7 @@ app.put('/:id', (req, res) => {
         })
     })
 })
+
 
 app.delete('/:id', (req, res) => {
     let id = req.params.id;

@@ -229,7 +229,7 @@ app.post('/', (req, res) => {
 
     factura.save((err, facturaSaved) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
                 messaje: 'Error al cargar facturas',
                 errors: err
@@ -252,7 +252,7 @@ app.put('/:id', (req, res) => {
 
     Factura.findById(id, (err, factura) => {
         if (err) {
-            res.status(500).json({
+            return res.status(500).json({
                 ok: false,
                 messaje: 'Error al cargar facturas',
                 errors: err
@@ -269,7 +269,7 @@ app.put('/:id', (req, res) => {
 
         factura.save((err, facturaGuardado) => {
             if (err) {
-                res.status(500).json({
+                return res.status(500).json({
                     ok: false,
                     messaje: 'Error al guardar el factura',
                     errors: err
@@ -306,7 +306,7 @@ app.delete('/:id', (req, res) => {
 
         Factura.findByIdAndRemove(id).exec((err, factura) => {
             if (err) {
-                res.status(500).json({
+                return res.status(500).json({
                     ok: false,
                     messaje: 'Error al cargar facturas',
                     errors: err
@@ -319,12 +319,6 @@ app.delete('/:id', (req, res) => {
         });
 
     })
-
-
-
-
-
-
 
 })
 

@@ -8,6 +8,22 @@ var Proveedor = require('../models/proveedor');
 app.get('/all', async(req, res) => {
 
     let proveedores = await getProveedores()
+
+    try {
+        proveedores = await Proveedor.find().sort({ nombre: 1 })
+        if (!proveedores) {
+            throw new Error('no se encontraron proveedores')
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            ok: false,
+            messaje: 'Error al buscar proveedores',
+            errors: error
+        })
+    }
+
+
     res.status(200).json({
         ok: true,
         messaje: 'Peticion realizada correctamente',
@@ -16,7 +32,7 @@ app.get('/all', async(req, res) => {
 })
 
 async function getProveedores() {
-    return await Proveedor.find({}, (err, proveedores) => {
+    return await Proveedor.find({}).exec((err, proveedores) => {
         if (err) {
             return res.status(500).json({
                 ok: false,

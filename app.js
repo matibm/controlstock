@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 mongoose.set('useCreateIndex', true);
 var bodyParser = require('body-parser');
 const path = require('path');
+const open = require('open');
 
 // Inicializar variables 
 var app = express();
@@ -57,6 +58,7 @@ var hospitalRoutes = require('./routes/hospital');
 var medicoRoutes = require('./routes/medico');
 var uploadRoutes = require('./routes/upload');
 var egresoRoutes = require('./routes/egreso');
+var ingresoRoutes = require('./routes/ingreso');
 var cierreCajaRoutes = require('./routes/cierreCaja');
 var imagenesRoutes = require('./routes/imagenes');
 var busquedaRoutes = require('./routes/busqueda');
@@ -72,6 +74,7 @@ app.use('/medico', medicoRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/img', imagenesRoutes);
 app.use('/egreso', egresoRoutes);
+app.use('/ingreso', ingresoRoutes);
 app.use('/busqueda', busquedaRoutes);
 app.use('/factura', facturaRoutes);
 app.use('/producto', productoRoutes);
@@ -87,6 +90,8 @@ app.get('/*', (req, res) => {
 mongoose.connection.openUri('mongodb://localhost:27017/Productos', (err, res) => {
         if (err) throw err;
         console.log("Base de datos:  \x1b[32m%s\x1b[0m", ' online');
+        open('http://localhost:3000');
+
     })
     // Escuchar peticiones 
 app.listen(3000, () => {

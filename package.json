@@ -22,7 +22,8 @@
         "mongoose": "^5.7.12",
         "mongoose-unique-validator": "^2.0.3",
         "nexe": "^3.3.7",
-        "nvm": "0.0.4"
+        "nvm": "0.0.4",
+        "open": "^7.3.0"
     },
     "devDependencies": {
         "nodemon": "^2.0.1"

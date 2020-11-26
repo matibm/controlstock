@@ -6,11 +6,9 @@ var Schema = mongoose.Schema;
 var recargaSchema = new Schema({
 
     fecha: { type: Number, required: true },
-    productoId: { type: Schema.Types.ObjectId, required: true },
-    cantidadASumar: { type: Number, required: true },
-    stockAnterior: { type: Schema.Types.Number, required: true },
-    marca: { type: String, required: true },
-    tipo: { type: String, required: true },
+    productos: { type: Array, required: false },
+    monto: { type: Number },
+    nfactura: { type: String },
     comentario: { type: String, required: false }
 
 

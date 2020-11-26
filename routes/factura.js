@@ -9,7 +9,7 @@ app.get('/:desde', (req, res, next) => {
     var desde = req.params.desde || 0;
     var hasta = req.query.hasta || new Date().valueOf();
 
-    Factura.find({ fecha: { $gt: desde, $lt: hasta } }).exec((err, facturas) => {
+    Factura.find({ fecha: { $gt: desde, $lt: hasta } }).sort({ fecha: -1 }).exec((err, facturas) => {
         if (err) {
             return res.status(500).json({
                 ok: false,

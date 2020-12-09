@@ -96,7 +96,8 @@ mongoose.connection.openUri('mongodb+srv://matibm:rb433ah01@cluster0-pywni.mongo
 
     })
     // Escuchar peticiones 
-app.listen(3000, () => {
-    console.log('Servidor funcionando en puerto 3000: \x1b[32m%s\x1b[0m', ' online');
+let port = 3000;
+app.listen(port, () => {
+    console.log('Servidor funcionando en puerto ' + port + ': \x1b[32m%s\x1b[0m', ' online');
 
 })

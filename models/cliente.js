@@ -9,6 +9,8 @@ var clienteSchema = new Schema({
     nombre: { type: String, required: false },
     ruc: { type: String, required: false },
     ci: { type: String, required: false },
+    tel: { type: String, required: false },
+    direccion: { type: String, required: false },
     facturas: { type: Array, required: false }
 
 });

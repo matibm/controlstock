@@ -107,7 +107,7 @@ app.get('/', (req, res, next) => {
         });
 });
 
-app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
+app.put('/:id', (req, res) => {
 
     var id = req.params.id;
 
@@ -132,6 +132,8 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
         cliente.ci = body.ci;
         cliente.ruc = body.ruc;
         cliente.nombre = body.nombre;
+        cliente.tel = body.tel;
+        cliente.direccion = body.direccion;
         cliente.facturas = body.facturas;
 
         cliente.save((err, clienteGuardado) => {

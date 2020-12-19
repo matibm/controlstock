@@ -4,6 +4,25 @@ var app = express()
 
 var CierreCaja = require('../models/caja');
 
+app.get('/filtrar/:desde', (req, res, next) => {
+    console.log("se ejecuta");
+    var desde = req.params.desde || 0;
+    var hasta = req.query.hasta || new Date().valueOf();
+    CierreCaja.find().and([{ fechaInicio: { $gt: desde } }, { fechaCierre: { $lt: hasta } }]).exec((err, cierreCajas) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                messaje: 'Error al cargar cierreCajas',
+                errors: err
+            })
+        }
+        res.status(200).json({
+            ok: true,
+            messaje: 'Peticion realizada correctamente',
+            cierreCajas: cierreCajas
+        })
+    })
+})
 app.get('/', (req, res, next) => {
     CierreCaja.find((err, cierreCajas) => {
         if (err) {

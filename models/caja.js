@@ -9,11 +9,11 @@ var cajaSchema = new Schema({
     fechaInicio: { type: Number, required: true },
     fechaCierre: { type: Number, required: false },
     montoFijo: { type: Number, required: true },
-    montoVentas: { type: Number, required: false },
-    montoEgresos: { type: Number, required: false },
-    montoIngresos: { type: Number, required: false },
+    montoVentas: { type: Number, required: false, default: 0 },
+    montoEgresos: { type: Number, required: false, default: 0 },
+    montoIngresos: { type: Number, required: false, default: 0 },
     comisionIngresos: { type: Number, required: false },
-    costoVentas: { type: Number, required: false },
+    costoVentas: { type: Number, required: false, default: 0 },
     cerrado: { type: Boolean, default: false }
 
 }, { collection: 'cajas' });

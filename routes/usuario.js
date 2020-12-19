@@ -34,7 +34,7 @@ app.get('/', (req, res, next) => {
                 }
                 res.status(200).json({
                     ok: true,
-                    Usuarios: usuarios,
+                    usuarios: usuarios,
                     totalUsuarios: conteo
                 });
             })
@@ -42,13 +42,12 @@ app.get('/', (req, res, next) => {
         });
 });
 
-app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
+app.put('/:id', (req, res) => {
 
     var id = req.params.id;
 
     Usuario.findById(id, (err, usuario) => {
         var body = req.body
-
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -79,7 +78,7 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
             usuarioGuardado.password = ':)'
             res.status(200).json({
                 ok: true,
-                Usuarios: usuarioGuardado
+                usuario: usuarioGuardado
             });
 
         })
@@ -88,7 +87,7 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
 
 })
 
-app.post('/', mdAutenticacion.verificaToken, (req, res) => {
+app.post('/', (req, res) => {
     var body = req.body
 
     var usuario = new Usuario({

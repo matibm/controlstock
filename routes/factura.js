@@ -94,7 +94,6 @@ app.get('/debiendo', (req, res) => {
         }
 
         let facturasAux = new Array
-
         for (let i = 0; i < facturas.length; i++) {
             const factura = facturas[i];
             if (factura.debiendo) {
@@ -259,13 +258,8 @@ app.put('/:id', (req, res) => {
             });
         };
 
-        factura.marca = facturaNuevo.marca
-        factura.codigo = facturaNuevo.codigo
-        factura.precio = facturaNuevo.precio
-        factura.precioBruto = facturaNuevo.precioBruto
-        factura.modelo = facturaNuevo.modelo
-        factura.cantidad = facturaNuevo.cantidad
-        factura.debiendo = facturaNuevo.debiendo
+        factura.productos = facturaNuevo.productos
+
 
         factura.save((err, facturaGuardado) => {
             if (err) {
@@ -322,6 +316,25 @@ app.delete('/:id', (req, res) => {
 
 })
 
+app.get('/facturas_por_usuario/:id/:desde', (req, res) => {
+    var desde = req.params.desde || 0;
+    var hasta = req.query.hasta || new Date().valueOf();
+
+    let id = req.params.id;
+    Factura.find({ fecha: { $gt: desde, $lt: hasta }, usuario: id }).exec((err, data) => {
+        if (err) {
+            res.status(500).json({
+                ok: false,
+                error: err
+            })
+            return;
+        }
+        res.status(200).json({
+            ok: true,
+            facturas: data
+        })
+    })
+})
 
 async function buscarProducto(id) {
     let p = await Producto.findById(id).catch(err => {

@@ -4,6 +4,27 @@ var app = express()
 var Producto = require('../models/producto');
 
 
+app.get('/actualizar_comision', (req, res) => {
+
+    let producto = new Producto(req.body);
+
+    Producto.find({}).exec((err, data) => {
+        for (let o = 0; o < data.length; o++) {
+            const producto = data[o];
+            data[o].comision = 10;
+            data[o].save()
+
+        }
+    })
+
+    res.status(200).json({
+        ok: true,
+        messaje: 'productos guardado correctamente',
+
+    });
+
+})
+
 app.get('/', (req, res, next) => {
 
     var desde = req.query.desde || 0;
@@ -233,6 +254,7 @@ app.put('/multiple', (req, res) => {
             producto.img = productoNuevo.img
             producto.proveedor = productoNuevo.proveedor
             producto.stockMinimo = productoNuevo.stockMinimo
+            producto.comision = productoNuevo.comision
 
             await producto.save()
 
@@ -316,6 +338,8 @@ app.delete('/:id', (req, res) => {
         });
     });
 })
+
+
 
 
 module.exports = app

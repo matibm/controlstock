@@ -8,7 +8,13 @@ var facturaSchema = new Schema({
     monto: { type: Number, required: true },
     costo: { type: Number, required: true },
     cliente: { type: Schema.Types.ObjectId, required: false },
-    debiendo: { type: Boolean, required: false, default: false }
+    debiendo: { type: Boolean, required: false, default: false },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuarios',
+        required: false
+    },
+    descuento: { type: Number, required: false, default: 10 }
 
 }, { collection: 'facturas' });
 

@@ -7,6 +7,39 @@ var SEED = require('../config/config').SEED;
 var Cliente = require('../models/cliente');
 var mdAutenticacion = require('../middleware/autenticacion');
 
+app.get('/cumpleanero', (req, res, next) => {
+
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+    let mesActual = new Date().getMonth();
+    let diaActual = new Date().getDate();
+    let cumpleaneros = []
+    Cliente.find({})
+        .exec((err, clientes) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'error cargando clientes',
+                    errors: err
+                });
+            }
+
+            for (let i = 0; i < clientes.length; i++) {
+                const cliente = clientes[i];
+                let datecliente = new Date(cliente.fecha_nacimiento);
+                if (datecliente.getMonth() == mesActual && datecliente.getDate() == diaActual) {
+                    cumpleaneros.push(cliente)
+                }
+            }
+
+            res.status(200).json({
+                ok: true,
+                haycumple: cumpleaneros.length > 0 ? true : false,
+                clientes: cumpleaneros
+            });
+
+        });
+});
 app.get('/buscar/:termino', (req, res, next) => {
     var busqueda = req.params.termino;
     var regex = new RegExp(busqueda, 'i')
@@ -107,6 +140,8 @@ app.get('/', (req, res, next) => {
         });
 });
 
+
+
 app.put('/:id', (req, res) => {
 
     var id = req.params.id;
@@ -133,6 +168,7 @@ app.put('/:id', (req, res) => {
         cliente.ruc = body.ruc;
         cliente.nombre = body.nombre;
         cliente.tel = body.tel;
+        cliente.fecha_nacimiento = body.fecha_nacimiento;
         cliente.direccion = body.direccion;
         cliente.facturas = body.facturas;
 
@@ -147,7 +183,7 @@ app.put('/:id', (req, res) => {
 
             res.status(200).json({
                 ok: true,
-                clientes: clienteGuardado
+                cliente: clienteGuardado
             });
 
         })
@@ -181,5 +217,7 @@ app.delete('/:id', (req, res) => {
 
     })
 })
+
+
 
 module.exports = app;

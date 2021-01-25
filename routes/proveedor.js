@@ -34,11 +34,7 @@ app.get('/all', async(req, res) => {
 async function getProveedores() {
     return await Proveedor.find({}).exec((err, proveedores) => {
         if (err) {
-            return res.status(500).json({
-                ok: false,
-                messaje: 'Error al buscar recargas',
-                errors: err
-            })
+            return err
         }
         return proveedores;
     })

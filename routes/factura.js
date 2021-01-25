@@ -4,6 +4,25 @@ var app = express()
 var Factura = require('../models/factura');
 var Producto = require('../models/producto');
 
+app.get('/fecha_cobro', (req, res) => {
+    let hoy = new Date()
+    hoy.setHours(0);
+    hoy = hoy.getTime()
+    Factura.find({ fechaPago: { $gt: hoy } }).and([{ debiendo: true }]).populate('cliente').exec((err, data) => {
+        if (err) {
+            res.status(500).json({
+                ok: false,
+                error: err
+            })
+            return;
+        }
+        res.status(200).json({
+            ok: true,
+            facturas: data
+        })
+    })
+})
+
 
 app.get('/:desde', (req, res, next) => {
     var desde = req.params.desde || 0;
@@ -211,7 +230,7 @@ app.get('/:id', (req, res) => {
 // get factura por cliente 
 app.get('/cliente/:id', (req, res) => {
     let id = req.params.id;
-    Factura.find({ cliente: id }).exec((err, facturas) => {
+    Factura.find({ cliente: id }).sort({ fecha: -1 }).exec((err, facturas) => {
         if (err) {
             return
         }
@@ -259,6 +278,8 @@ app.put('/:id', (req, res) => {
         };
 
         factura.productos = facturaNuevo.productos
+        factura.debiendo = facturaNuevo.debiendo
+        factura.fecha = facturaNuevo.fecha
 
 
         factura.save((err, facturaGuardado) => {

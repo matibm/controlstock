@@ -11,7 +11,8 @@ var clienteSchema = new Schema({
     ci: { type: String, required: false },
     tel: { type: String, required: false },
     direccion: { type: String, required: false },
-    facturas: { type: Array, required: false }
+    facturas: { type: Array, required: false },
+    fecha_nacimiento: { type: Number, required: false }
 
 });
 

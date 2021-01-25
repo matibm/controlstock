@@ -22,6 +22,7 @@ app.get('/producto/:busqueda', (req, res, next) => {
 function buscarUsuarios(busqueda, regex) {
     return new Promise((resolve, reject) => {
         Producto.find({})
+            .limit(50)
             .or([{ 'marca': regex }, { 'codigo': regex }, { 'modelo': regex }])
             .exec((err, producto) => {
                 if (err) {

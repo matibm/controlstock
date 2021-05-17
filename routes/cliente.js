@@ -5,7 +5,11 @@ var jwt = require('jsonwebtoken');
 var SEED = require('../config/config').SEED;
 
 var Cliente = require('../models/cliente');
+var Factura = require('../models/factura');
 var mdAutenticacion = require('../middleware/autenticacion');
+const mongoose = require('mongoose')
+
+const ObjectId = mongoose.Types.ObjectId;
 
 app.get('/cumpleanero', (req, res, next) => {
 
@@ -113,13 +117,64 @@ app.get('/', (req, res, next) => {
     Cliente.find({})
         .skip(desde)
         .limit(20)
-        .exec((err, clientes) => {
+        .exec(async(err, clientes) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
                     mensaje: 'error cargando clientes',
                     errors: err
                 });
+            }
+
+
+            for (let i = 0; i < clientes.length; i++) {
+                const cliente = clientes[i];
+
+                let facturas = await Factura.find({ cliente: ObjectId(cliente._id) }).sort({ fecha: -1 })
+                let ultimaFactura = facturas[0]
+                let productos = []
+                for (let j = 0; j < facturas.length; j++) {
+                    const factura = facturas[j];
+                    // console.log(factura);
+                    for (let x = 0; x < factura.productos.length; x++) {
+                        const producto = factura.productos[x];
+                        productos.push(producto)
+
+                    }
+                }
+
+                let productosAux = []
+                    // productosAux.push(productos[0])
+                for (let y = 0; y < productos.length; y++) {
+                    const item = productos[y];
+                    let existe = false
+                    for (let j = 0; j < productosAux.length; j++) {
+                        const producto = productosAux[j];
+                        if (item._id == producto._id) {
+                            existe = true
+                            producto.cantidad += item.cantidad
+                        }
+                    }
+                    if (!existe) {
+                        productosAux.push(item)
+                    }
+                }
+                productosAux.sort(compare);
+                productosAux = productosAux.reverse()
+                let clienteobj = {
+                    ci: cliente.ci,
+                    direccion: cliente.direccion,
+                    facturas: cliente.facturas,
+                    fecha_nacimiento: cliente.fecha_nacimiento,
+                    nombre: cliente.nombre,
+                    tel: cliente.tel,
+                    _id: cliente._id,
+                    ultimaFactura: ultimaFactura,
+                    producto: productosAux[0]
+                }
+                clientes[i] = clienteobj
+                console.log(productosAux[0]);
+                // clientes.productoMasComprado = productosAux[0]
             }
 
             Cliente.count({}, (err, conteo) => {
@@ -218,6 +273,19 @@ app.delete('/:id', (req, res) => {
     })
 })
 
+function compare(a, b) {
+    // Use toUpperCase() to ignore character casing
+    const bandA = a.cantidad
+    const bandB = b.cantidad
+
+    let comparison = 0;
+    if (bandA > bandB) {
+        comparison = 1;
+    } else if (bandA < bandB) {
+        comparison = -1;
+    }
+    return comparison;
+}
 
 
 module.exports = app;

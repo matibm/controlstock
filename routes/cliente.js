@@ -113,9 +113,10 @@ app.get('/', (req, res, next) => {
 
     var desde = req.query.desde || 0;
     desde = Number(desde);
-
+    let page = parseInt(req.query.page) || 1
     Cliente.find({})
-        .skip(desde)
+        .sort({ nombre: 1 })
+        .skip((page * 20) - 20)
         .limit(20)
         .exec(async(err, clientes) => {
             if (err) {
@@ -173,11 +174,11 @@ app.get('/', (req, res, next) => {
                     producto: productosAux[0]
                 }
                 clientes[i] = clienteobj
-                console.log(productosAux[0]);
+
                 // clientes.productoMasComprado = productosAux[0]
             }
 
-            Cliente.count({}, (err, conteo) => {
+            Cliente.countDocuments({}, (err, conteo) => {
                 if (err) {
                     return res.status(500).json({
                         ok: false,
@@ -188,14 +189,12 @@ app.get('/', (req, res, next) => {
                 res.status(200).json({
                     ok: true,
                     clientes: clientes,
-                    totalClientes: conteo
+                    count: conteo
                 });
             })
 
         });
 });
-
-
 
 app.put('/:id', (req, res) => {
 

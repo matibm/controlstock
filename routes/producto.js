@@ -2,8 +2,30 @@ var express = require('express');
 
 var app = express()
 var Producto = require('../models/producto');
+var Stock = require('../models/stock');
+const mongoose = require('mongoose');
+
+const ObjectId = mongoose.Types.ObjectId;
 
 
+app.get('/get_stock', async (req, res) => {
+    try {
+        let id = req.query.id
+        console.log(id);
+        let stocks = await Stock.find({ producto: ObjectId(id) }).populate('sucursal ')
+        res.status(200).json({
+            ok: true,
+            stocks
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            ok: false,
+            messaje: 'Error al cargar stocks',
+            errors: error
+        })
+    }
+})
 app.get('/actualizar_comision', (req, res) => {
 
     let producto = new Producto(req.body);
@@ -25,29 +47,88 @@ app.get('/actualizar_comision', (req, res) => {
 
 })
 
-app.get('/', (req, res, next) => {
+app.get('/', async (req, res, next) => {
 
-    var desde = req.query.desde || 0;
-    desde = Number(desde);
+    try {
 
-    Producto.find({}).sort({ marca: 1 })
-        .skip(desde)
-        .limit(6)
-        .exec((err, productos) => {
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    messaje: 'Error al cargar productos',
-                    errors: err
-                })
-            }
-            res.status(200).json({
-                ok: true,
-                messaje: 'Peticion realizada correctamente',
-                productos: productos.reverse()
-            })
+
+        var desde = req.query.desde || 0;
+        desde = Number(desde);
+
+        let productos = await Producto.aggregate([
+            {
+                $lookup: {
+                    from: 'stocks',
+                    let: { productoId: '$_id' },
+                    pipeline: [
+                        { $match: { "$expr": { "$eq": ["$producto", '$$productoId'] } } },
+
+                        {
+                            $group: {
+                                _id: null,
+                                cantidad: { $first: '$cantidad' }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+
+                            }
+                        }
+                    ],
+                    as: 'stock'
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$stock",
+                    "preserveNullAndEmptyArrays": true
+                }
+            },
+            {
+                $set: { stock: '$stock.cantidad' }
+            },
+
+           
+            { $skip: desde },
+            { $limit: 6 }
+        ])
+
+
+        res.status(200).json({
+            ok: true,
+            messaje: 'Peticion realizada correctamente',
+            productos: productos
         })
+    } catch (error) {
+        return res.status(500).json({
+            ok: false,
+            messaje: 'Error al cargar productos',
+            errors: err
+        })
+    }
+
+    console.log(productos);
+
+    // Producto.find({}).sort({ marca: 1 })
+    //     .skip(desde)
+    //     .limit(6)
+    //     .exec((err, productos) => {
+    //         if (err) {
+    //             return res.status(500).json({
+    //                 ok: false,
+    //                 messaje: 'Error al cargar productos',
+    //                 errors: err
+    //             })
+    //         }
+    //         res.status(200).json({
+    //             ok: true,
+    //             messaje: 'Peticion realizada correctamente',
+    //             productos: productos.reverse()
+    //         })
+    //     })
 })
+
 app.get('/all', (req, res, next) => {
 
 
@@ -153,9 +234,13 @@ app.get('/:id', (req, res) => {
 })
 
 app.post('/', (req, res) => {
+    let body = req.body
+    let stocks = req.body.stocks
+    delete body.stocks
+    console.log(stocks);
+    let producto = new Producto(body);
 
-    let producto = new Producto(req.body);
-    producto.save((err, productoSaved) => {
+    producto.save(async (err, productoSaved) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -163,6 +248,17 @@ app.post('/', (req, res) => {
                 errors: err
             });
         };
+
+        for (let i = 0; i < stocks.length; i++) {
+            const stock = stocks[i];
+            let st = {
+                producto: producto._id,
+                sucursal: stock._id,
+                cantidad: stock.stock
+            }
+            await Stock.insertMany([st])
+        }
+
         res.status(200).json({
             ok: true,
             messaje: 'producto guardado correctamente',
@@ -170,7 +266,7 @@ app.post('/', (req, res) => {
         });
     })
 })
-app.put('/decrementar', async(req, res) => {
+app.put('/decrementar', async (req, res) => {
     let productosEnNegativo = []
     let arregloObjetos = req.body
     for (let index = 0; index < arregloObjetos.length; index++) {
@@ -240,7 +336,7 @@ app.put('/multiple', (req, res) => {
     let arr = req.body
     let producto
     console.log(arr);
-    arr.forEach(async(productoNuevo) => {
+    arr.forEach(async (productoNuevo) => {
         try {
 
             producto = await Producto.findById(productoNuevo._id)

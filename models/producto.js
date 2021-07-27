@@ -15,7 +15,8 @@ var productoSchema = new Schema({
     stock: { type: Number, required: true, default: 0 },
     proveedor: { type: String, required: false },
     stockMinimo: { type: Number, required: false },
-    comision: { type: Number, required: false, default: 10 }
+    comision: { type: Number, required: false, default: 10 },
+    sucursales: { type: Array }
 
 }, { collection: 'productos' });
 

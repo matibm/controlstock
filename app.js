@@ -66,6 +66,7 @@ var imagenesRoutes = require('./routes/imagenes');
 var busquedaRoutes = require('./routes/busqueda');
 var recargaRoute = require('./routes/recarga');
 var proveedorRoute = require('./routes/proveedor');
+var sucursalRoute = require('./routes/sucursal');
 // Rutas
 
 app.use('/usuario', usuarioRoutes);
@@ -83,14 +84,15 @@ app.use('/producto', productoRoutes);
 app.use('/cierrecaja', cierreCajaRoutes);
 app.use('/recarga', recargaRoute);
 app.use('/proveedor', proveedorRoute);
+app.use('/sucursal', sucursalRoute);
 // app.use('/', appRoutes);
 app.use(express.static(`../inventario-frontend/dist/control-stock`));
 app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname + `/../inventario-frontend/dist/control-stock/index.html`));
 });
 // 'mongodb+srv://matibm:rb433ah01@cluster0-pywni.mongodb.net/Productos?retryWrites=true&w=majority'
-mongoose.connection.openUri('mongodb+srv://matibm:rb433ah01@cluster0-pywni.mongodb.net/Productos?retryWrites=true&w=majority', (err, res) => {
-        // mongoose.connection.openUri('mongodb://localhost:27017/Productos', (err, res) => {
+// mongoose.connection.openUri('mongodb+srv://matibm:rb433ah01@cluster0-pywni.mongodb.net/Productos?retryWrites=true&w=majority', (err, res) => {
+        mongoose.connection.openUri('mongodb://localhost:27017/v1_productos', (err, res) => {
         if (err) throw err;
         console.log("Base de datos:  \x1b[32m%s\x1b[0m", ' online');
         // open('http://localhost:3000');

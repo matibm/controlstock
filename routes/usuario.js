@@ -142,4 +142,19 @@ app.delete('/:id', mdAutenticacion.verificaToken, (req, res) => {
     })
 })
 
+app.get('/crear_usuario_admin', async(req, res )=>{
+    let usuario = await new Usuario({
+        
+    nombre: 'admin',
+    email: 'admin',
+    password: bcrypt.hashSync('admin', 10),
+     
+    role: 'ADMIN_ROLE'
+    }).save()
+
+    res.status(200).json({
+        ok:true, usuario: 'admin'
+    })
+})
+
 module.exports = app;

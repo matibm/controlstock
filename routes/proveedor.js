@@ -91,6 +91,10 @@ app.put('/:id', (req, res) => {
         };
         proveedor.nombre = proveedorNuevo.nombre
         proveedor.telefono = proveedorNuevo.telefono
+        proveedor.ruc = proveedorNuevo.ruc
+        proveedor.persona_contacto = proveedorNuevo.persona_contacto
+        proveedor.direccion = proveedorNuevo.direccion
+        proveedor.email = proveedorNuevo.email
         proveedor.comentario = proveedorNuevo.comentario
         proveedor.save((err, data) => {
             if (err) {

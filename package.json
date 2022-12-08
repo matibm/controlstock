@@ -19,7 +19,7 @@
         "express": "^4.17.1",
         "express-fileupload": "^1.1.6",
         "jsonwebtoken": "^8.5.1",
-        "minimist": "^1.2.5",
+        "minimist": "^1.2.6",
         "mongoose": "^5.7.12",
         "mongoose-unique-validator": "^2.0.3",
         "nexe": "^3.3.7",

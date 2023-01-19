@@ -3,6 +3,7 @@ var express = require('express');
 var app = express()
 var Factura = require('../models/factura');
 var Producto = require('../models/producto');
+var Cuota = require('../models/cuota');
 
 app.get('/fecha_cobro', (req, res) => {
     let hoy = new Date()
@@ -263,6 +264,110 @@ app.post('/', (req, res) => {
 
     })
 })
+app.post('/crear_cuotas', async (req, res) => {
+    try {
+
+        let body = req.body
+        let cuotas = []
+        for (let i = 0; i < body.cant_cuotas; i++) {
+            let fechaVencimiento = new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 2 + i}- ${body.dia_vencimiento} 00:00:00`)
+            cuotas.push({
+                ...body,
+                fecha_creacion: new Date().toISOString(),
+                pagado: false,
+                nro_cuota: i + 1,
+                fecha_vencimiento: fechaVencimiento.getTime()
+            })
+            let c = new Cuota({
+                ...body,
+                fecha_creacion: new Date().getTime(),
+                pagado: false,
+                nro_cuota: i + 1,
+                fecha_vencimiento: fechaVencimiento.getTime()
+            })
+            await c.save()
+        }
+        console.log(cuotas);
+        res.send({ ok: true })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+})
+app.post('/cobrar_cuota', async (req, res) => {
+    try {
+
+        let body = req.body
+        let cuota = await Cuota.findById(body._id)
+        cuota.pagado = true,
+            cuota.fecha_pagado = new Date().getTime()
+        await cuota.save()
+
+        res.send({ ok: true })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+})
+app.post('/cancelar_cobro', async (req, res) => {
+    try {
+        let body = req.body
+        let cuota = await Cuota.findById(body._id)
+        cuota.pagado = false,
+            cuota.fecha_pagado = new Date().getTime()
+        await cuota.save()
+
+        res.send({ ok: true })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+})
+app.get('/get_cuotas/:id', async (req, res) => {
+    try {
+        let id = req.params.id
+        const cuotas = await Cuota.find({ cliente: id }).sort({ nro_cuota: 1 })
+        res.send({ ok: true, cuotas })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+})
+app.post('/get_all_cuotas', async (req, res) => {
+    try {
+        let body = req.body
+        let pagado = {}
+        if (body.tipo == 'pagado') {
+            pagado = { pagado: true }
+        }
+        if (body.tipo == 'pendiente') {
+            pagado = { pagado: false }
+        }
+        const cuotas = await Cuota.find({ fecha_vencimiento: { $gte: body.start, $lte: body.end }, ...pagado }).sort({ nro_cuota: 1 }).populate('factura cliente')
+        res.send({ ok: true, cuotas })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+})
+app.post('/get_cobros', async (req, res) => {
+    try {
+        let body = req.body
+
+        const cuotas = await Cuota.find({ fecha_pagado: { $gte: body.desde, $lte: body.hasta } }).sort({ nro_cuota: 1 }).populate('factura cliente')
+        res.send({ ok: true, cuotas })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+})
+
+app.post('/get_ventas_total', async (req, res) => {
+    try {
+        let body = req.body
+
+        let facturas = await Factura.find({ fecha: { $gte: body.start, $lte: body.end } }).populate('cliente')
+        
+        res.send({ ok: true, facturas })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+})
+
 
 app.put('/:id', (req, res) => {
     let facturaNuevo = req.body
@@ -304,7 +409,7 @@ app.put('/:id', (req, res) => {
 app.delete('/:id', (req, res) => {
     let id = req.params.id;
 
-    Factura.findById(id).exec(async(err, factura) => {
+    Factura.findById(id).exec(async (err, factura) => {
         if (err) {
             return res.status(500).json({
                 ok: false,

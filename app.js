@@ -89,7 +89,11 @@ app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname + `/../inventario-frontend/dist/control-stock/index.html`));
 });
 // 'mongodb+srv://matibm:rb433ah01@cluster0-pywni.mongodb.net/Productos?retryWrites=true&w=majority'
+<<<<<<< HEAD
 mongoose.connection.openUri('mongodb://mburgos:mburgos123@147.182.244.85:28018/Productos?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false', (err, res) => {
+=======
+mongoose.connection.openUri(process.env.DB_URI, (err, res) => {
+>>>>>>> 4f45bb71ada037f473d05a081bfc037ffe4262fd
         // mongoose.connection.openUri('mongodb://localhost:28018/Productos', (err, res) => {
         if (err) throw err;
         console.log("Base de datos:  \x1b[32m%s\x1b[0m", ' online');

@@ -193,7 +193,7 @@ app.put('/decrementar', async(req, res) => {
 
     }
     if (productosEnNegativo.length > 0) {
-        res.status(200).json({
+        res.status(400).json({
             ok: false,
             messaje: 'producto se vendio mas de lo que habia',
             productos: productosEnNegativo

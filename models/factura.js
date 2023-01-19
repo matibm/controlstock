@@ -15,7 +15,8 @@ var facturaSchema = new Schema({
         ref: 'Usuarios',
         required: false
     },
-    descuento: { type: Number, required: false, default: 10 }
+    descuento: { type: Number, required: false, default: 10 },
+    es_cuota: { type: Boolean, required: false, default: false }
 
 }, { collection: 'facturas' });
 

@@ -8,7 +8,7 @@ app.get('/filtrar/:desde', (req, res, next) => {
 
     var desde = req.params.desde || 0;
     var hasta = req.query.hasta || new Date().valueOf();
-    CierreCaja.find().and([{ fechaInicio: { $gt: desde } }, { fechaCierre: { $lt: hasta } }]).exec((err, cierreCajas) => {
+    CierreCaja.find().and([{ fechaInicio: { $gt: desde } }, { fechaCierre: { $lt: hasta } },  ]).exec((err, cierreCajas) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -78,8 +78,10 @@ app.put('/:id', (req, res) => {
         cierreCaja.facturas = cierreCajaNuevo.facturas
         cierreCaja.egresos = cierreCajaNuevo.egresos
         cierreCaja.ingresos = cierreCajaNuevo.ingresos
+        cierreCaja.cobros = cierreCajaNuevo.cobros
         cierreCaja.montoFijo = cierreCajaNuevo.montoFijo
         cierreCaja.montoVentas = cierreCajaNuevo.montoVentas
+        cierreCaja.montoCobros = cierreCajaNuevo.montoCobros
         cierreCaja.montoEgresos = cierreCajaNuevo.montoEgresos
         cierreCaja.montoIngresos = cierreCajaNuevo.montoIngresos
         cierreCaja.fechaInicio = cierreCajaNuevo.fechaInicio

@@ -44,6 +44,7 @@ app.get('/', (req, res, next) => {
 
 app.put('/:id', (req, res) => {
 
+   try {
     var id = req.params.id;
 
     Usuario.findById(id, (err, usuario) => {
@@ -66,6 +67,7 @@ app.put('/:id', (req, res) => {
         usuario.nombre = body.nombre;
         usuario.email = body.email;
         usuario.role = body.role;
+        usuario.password = bcrypt.hashSync(body.password, 10);
 
         usuario.save((err, usuarioGuardado) => {
             if (err) {
@@ -84,6 +86,9 @@ app.put('/:id', (req, res) => {
         })
 
     })
+   } catch (error) {
+    console.error(error);
+   }
 
 })
 

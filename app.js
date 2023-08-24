@@ -84,9 +84,9 @@ app.use('/cierrecaja', cierreCajaRoutes);
 app.use('/recarga', recargaRoute);
 app.use('/proveedor', proveedorRoute);
 // app.use('/', appRoutes);
-app.use(express.static(`../inventario-frontend/dist/control-stock`));
+app.use(express.static(`../new-inventory/dist/new-inventory`));
 app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname + `/../inventario-frontend/dist/control-stock/index.html`));
+    res.sendFile(path.join(__dirname + `/../new-inventory/dist/new-inventory/index.html`));
 });
 // 'mongodb+srv://matibm:rb433ah01@cluster0-pywni.mongodb.net/Productos?retryWrites=true&w=majority'
 mongoose.connection.openUri(process.env.DB_URI, (err, res) => {

@@ -97,7 +97,7 @@ mongoose.connection.openUri(process.env.DB_URI, (err, res) => {
 
     })
     // Escuchar peticiones 
-let port = 3100;
+let port = process.env.PORT ;
 app.listen(port, () => {
     console.log('Servidor funcionando en puerto ' + port + ': \x1b[32m%s\x1b[0m', ' online');
 
